@@ -76,6 +76,10 @@ export interface Props {
    * Prefix for the CSS class name in the DOM.
    */
   stylePrefix?: string;
+  /**
+   * Function call for on click event
+   */
+  onClickFunction?: any;
 }
 
 /**
@@ -92,7 +96,10 @@ const interpolateColor = (
 /**
  * Default props.
  */
-const defaultProps: Omit<Required<ExcludeRequiredProps<Props>>, 'spread'> & { spread?: string } = {
+const defaultProps: Omit<Required<ExcludeRequiredProps<Props>>, 'spread'> & {
+  spread?: string;
+  onClickFunction?: any;
+} = {
   applyBackgroundColor: false,
   askColor: [235, 64, 52],
   bidColor: [0, 216, 101],
@@ -104,12 +111,14 @@ const defaultProps: Omit<Required<ExcludeRequiredProps<Props>>, 'spread'> & { sp
   showSpread: true,
   spread: undefined,
   stylePrefix: 'rob_OrderBook',
+  onClickFunction: 1,
 };
 
 type RenderListOptions = Pick<Props, 'applyBackgroundColor' | 'fullOpacity' | 'stylePrefix'> & {
   interpolateColor: NonNullable<Props['interpolateColor']>;
   color: RgbColor;
   reverse?: boolean;
+  onClickFunction: any;
 };
 
 /**
@@ -124,6 +133,7 @@ const renderList = (
     interpolateColor: interpolateColorProp,
     reverse,
     stylePrefix,
+    onClickFunction,
   }: RenderListOptions,
 ) => {
   const style = {
@@ -143,7 +153,14 @@ const renderList = (
         };
 
         return (
-          <li className={`${stylePrefix}__list-item`} key={price} style={rowStyle}>
+          <li
+            className={`${stylePrefix}__list-item`}
+            key={price}
+            style={rowStyle}
+            onClick={() => {
+              onClickFunction(price);
+            }}
+          >
             <span className={`${stylePrefix}__price`}>{price}</span>
 
             <span className={`${stylePrefix}__size`}>{size}</span>
@@ -187,6 +204,7 @@ export const OrderBook: React.FC<Props> = ({
   showSpread,
   spread: rawSpread,
   stylePrefix,
+  onClickFunction,
 }) => {
   const { bids, asks } = book;
   const spread = rawSpread ?? new Big(asks[0][0]).minus(new Big(bids[0][0])).toString();
@@ -209,6 +227,7 @@ export const OrderBook: React.FC<Props> = ({
           interpolateColor: interpolateColorProp ?? interpolateColor,
           reverse,
           stylePrefix,
+          onClickFunction,
         })}
       </div>
 
@@ -227,6 +246,7 @@ export const OrderBook: React.FC<Props> = ({
           fullOpacity,
           interpolateColor: interpolateColorProp ?? interpolateColor,
           stylePrefix,
+          onClickFunction,
         })}
       </div>
     </div>
